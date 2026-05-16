@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a0b2e">
+<title>ESC 2026 Voting · Vienna</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎤%3C/text%3E%3C/svg%3E">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(180deg, #1a0b2e 0%, #2d1248 50%, #1a0b2e 100%);
+    background-attachment: fixed;
+    color: #f5f5f7;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    overflow-x: hidden;
+  }
+  .header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(26, 11, 46, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px 14px 6px;
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .logo { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .logo-heart { color: #ff2d7a; animation: heartbeat 1.5s ease-in-out infinite; }
+  @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+  .date-pill {
+    font-size: 10px; padding: 3px 8px;
+    background: rgba(255, 45, 122, 0.15);
+    border: 1px solid rgba(255, 45, 122, 0.3);
+    border-radius: 999px; color: #ff7ab0; font-weight: 600;
+  }
+  .player-tabs {
+    display: flex; gap: 5px; overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -14px; padding: 0 14px 4px;
+  }
+  .player-tabs::-webkit-scrollbar { display: none; }
+  .player-tab {
+    flex: 0 0 auto; padding: 6px 12px; border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    color: #f5f5f7; font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  }
+  .player-tab .count { opacity: 0.6; font-weight: 400; margin-left: 3px; font-size: 10px; }
+  .player-tab.active {
+    background: linear-gradient(135deg, #ff2d7a 0%, #c91d5e 100%);
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(255, 45, 122, 0.4);
+  }
+  .player-tab.active .count { opacity: 0.9; }
+  .progress {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 6px; font-size: 10px; color: rgba(255, 255, 255, 0.6);
+  }
+  .progress-bar { flex: 1; height: 3px; background: rgba(255, 255, 255, 0.08); border-radius: 2px; overflow: hidden; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff2d7a 0%, #ffaa3e 100%);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .view-toggle {
+    display: flex; gap: 2px; padding: 2px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px; margin: 8px 0 0;
+  }
+  .view-btn {
+    flex: 1; padding: 6px; background: transparent; border: none;
+    color: rgba(255, 255, 255, 0.5); font-size: 11px; font-weight: 600;
+    border-radius: 6px; cursor: pointer; transition: all 0.15s;
+  }
+  .view-btn.active { background: rgba(255, 255, 255, 0.12); color: #fff; }
+
+  .setup { padding: 40px 24px; text-align: center; max-width: 420px; margin: 0 auto; }
+  .setup-logo { font-size: 48px; margin-bottom: 8px; }
+  .setup h1 {
+    font-size: 28px; font-weight: 800; margin: 0 0 6px;
+    background: linear-gradient(135deg, #ff2d7a 0%, #ffaa3e 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .setup p { font-size: 14px; color: rgba(255, 255, 255, 0.6); margin: 0 0 28px; line-height: 1.5; }
+  .name-input {
+    width: 100%; padding: 14px 16px; margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px; color: #fff; font-size: 15px; outline: none;
+  }
+  .name-input:focus { border-color: #ff2d7a; background: rgba(255, 45, 122, 0.08); }
+  .name-input::placeholder { color: rgba(255, 255, 255, 0.3); }
+  .start-btn {
+    width: 100%; padding: 16px; margin-top: 16px;
+    background: linear-gradient(135deg, #ff2d7a 0%, #c91d5e 100%);
+    border: none; border-radius: 12px; color: #fff;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 8px 24px rgba(255, 45, 122, 0.35);
+  }
+  .start-btn:active { transform: scale(0.98); }
+
+  /* COMPACT SONG LIST */
+  .songs-container { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .song-row {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px; overflow: hidden; transition: all 0.2s;
+  }
+  .song-row.complete {
+    background: rgba(93, 202, 165, 0.06);
+    border-color: rgba(93, 202, 165, 0.25);
+  }
+  .song-row.expanded {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 45, 122, 0.4);
+  }
+  .song-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; cursor: pointer; user-select: none;
+  }
+  .pos-num { font-size: 10px; font-weight: 700; color: rgba(255, 255, 255, 0.4); min-width: 18px; }
+  .flag { font-size: 22px; line-height: 1; }
+  .song-info { flex: 1; min-width: 0; }
+  .country-name { font-size: 13px; font-weight: 700; margin: 0; color: #fff; line-height: 1.2; }
+  .artist-song {
+    font-size: 10px; color: rgba(255, 255, 255, 0.45);
+    margin: 1px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .quick-scores { display: flex; gap: 3px; }
+  .quick-score {
+    font-size: 9px; font-weight: 700; min-width: 16px; height: 16px;
+    border-radius: 3px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.35);
+  }
+  .quick-score.set { background: rgba(255, 45, 122, 0.2); color: #ff7ab0; }
+  .avg-mini {
+    font-size: 14px; font-weight: 800; min-width: 30px; text-align: right;
+    background: linear-gradient(135deg, #ff2d7a 0%, #ffaa3e 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .avg-mini.empty { background: none; -webkit-text-fill-color: rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.2); }
+  .chevron { font-size: 11px; color: rgba(255, 255, 255, 0.3); transition: transform 0.2s; }
+  .song-row.expanded .chevron { transform: rotate(180deg); color: #ff7ab0; }
+
+  /* EXPANDED */
+  .song-body {
+    padding: 4px 10px 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    animation: slideDown 0.2s ease-out;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 400px; }
+  }
+  .category-row { margin-top: 10px; }
+  .cat-label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 10px; color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;
+  }
+  .cat-current { color: #ff2d7a; font-size: 12px; font-weight: 800; }
+  .cat-current.unset { color: rgba(255, 255, 255, 0.25); }
+  .bubbles { display: grid; grid-template-columns: repeat(13, 1fr); gap: 3px; }
+  .bubble {
+    aspect-ratio: 1; min-height: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%; background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 10px; font-weight: 700; cursor: pointer; padding: 0;
+    transition: all 0.12s; display: flex; align-items: center; justify-content: center;
+    font-family: inherit;
+  }
+  .bubble:active { transform: scale(0.9); }
+  .bubble.selected {
+    background: linear-gradient(135deg, #ff2d7a 0%, #c91d5e 100%);
+    border-color: transparent; color: #fff;
+    box-shadow: 0 2px 8px rgba(255, 45, 122, 0.4); transform: scale(1.05);
+  }
+  .bubble.selected.twelve {
+    background: linear-gradient(135deg, #ffaa3e 0%, #ff6b1a 100%);
+    box-shadow: 0 2px 12px rgba(255, 170, 62, 0.5);
+  }
+
+  /* RANKING */
+  .ranking-list { padding: 10px 8px; display: flex; flex-direction: column; gap: 5px; }
+  .rank-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+  }
+  .rank-item.top1 {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 170, 62, 0.05) 100%);
+    border-color: rgba(255, 215, 0, 0.4);
+  }
+  .rank-item.top2 {
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.12) 0%, rgba(192, 192, 192, 0.03) 100%);
+    border-color: rgba(192, 192, 192, 0.3);
+  }
+  .rank-item.top3 {
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.12) 0%, rgba(205, 127, 50, 0.03) 100%);
+    border-color: rgba(205, 127, 50, 0.3);
+  }
+  .rank-pos { font-size: 16px; font-weight: 800; min-width: 26px; text-align: center; color: rgba(255, 255, 255, 0.4); }
+  .rank-pos.gold { color: #ffd700; font-size: 20px; }
+  .rank-pos.silver { color: #c0c0c0; font-size: 18px; }
+  .rank-pos.bronze { color: #cd7f32; font-size: 18px; }
+  .rank-flag { font-size: 22px; }
+  .rank-country { flex: 1; min-width: 0; }
+  .rank-country .name { font-size: 13px; font-weight: 700; color: #fff; }
+  .rank-country .song-title { font-size: 10px; color: rgba(255, 255, 255, 0.45); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rank-score {
+    font-size: 16px; font-weight: 800;
+    background: linear-gradient(135deg, #ff2d7a 0%, #ffaa3e 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .rank-score.no-data { background: none; -webkit-text-fill-color: rgba(255, 255, 255, 0.25); color: rgba(255, 255, 255, 0.25); font-size: 10px; font-weight: 500; }
+  .player-scores { display: flex; gap: 3px; margin-top: 3px; flex-wrap: wrap; }
+  .player-scores span {
+    font-size: 9px; padding: 1px 5px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 3px; color: rgba(255, 255, 255, 0.55);
+  }
+  .empty-state { text-align: center; padding: 60px 20px; color: rgba(255, 255, 255, 0.4); font-size: 14px; }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+
+  .share-section {
+    padding: 16px; margin: 16px 8px 0;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px; text-align: center;
+  }
+  .share-section h3 { font-size: 13px; font-weight: 700; margin: 0 0 4px; }
+  .share-section p { font-size: 11px; color: rgba(255, 255, 255, 0.5); margin: 0 0 12px; line-height: 1.4; }
+  .share-btn {
+    width: 100%; padding: 10px;
+    background: rgba(255, 45, 122, 0.15);
+    border: 1px solid rgba(255, 45, 122, 0.4);
+    border-radius: 8px; color: #ff7ab0;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .share-btn:active { transform: scale(0.98); }
+  .import-input {
+    width: 100%; padding: 9px; margin-top: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px; color: #fff;
+    font-size: 10px; font-family: monospace;
+  }
+  .footer { text-align: center; padding: 20px 16px 10px; font-size: 10px; color: rgba(255, 255, 255, 0.3); }
+  .reset-btn {
+    background: none; border: none;
+    color: rgba(255, 100, 100, 0.5);
+    font-size: 10px; cursor: pointer; margin-top: 6px; padding: 4px 8px;
+  }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+    color: #fff; padding: 12px 20px;
+    border-radius: 999px; font-size: 13px; font-weight: 600; z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SONGS = [
+  { pos: 1, flag: '🇩🇰', country: 'Dänemark', artist: 'Søren Torpegaard Lund', song: 'Før vi går hjem' },
+  { pos: 2, flag: '🇩🇪', country: 'Deutschland', artist: 'Sarah Engels', song: 'Fire' },
+  { pos: 3, flag: '🇮🇱', country: 'Israel', artist: 'Noam Bettan', song: 'Michelle' },
+  { pos: 4, flag: '🇧🇪', country: 'Belgien', artist: 'Essyla', song: 'Dancing on the Ice' },
+  { pos: 5, flag: '🇦🇱', country: 'Albanien', artist: 'Alis', song: 'Nån' },
+  { pos: 6, flag: '🇬🇷', country: 'Griechenland', artist: 'Akylas', song: 'Ferto' },
+  { pos: 7, flag: '🇺🇦', country: 'Ukraine', artist: 'Leléka', song: 'Ridnym' },
+  { pos: 8, flag: '🇦🇺', country: 'Australien', artist: 'Delta Goodrem', song: 'Eclipse' },
+  { pos: 9, flag: '🇷🇸', country: 'Serbien', artist: 'Lavina', song: 'Kraj mene' },
+  { pos: 10, flag: '🇲🇹', country: 'Malta', artist: 'Aidan', song: 'Bella' },
+  { pos: 11, flag: '🇨🇿', country: 'Tschechien', artist: 'Daniel Žižka', song: 'Crossroads' },
+  { pos: 12, flag: '🇧🇬', country: 'Bulgarien', artist: 'Dara', song: 'Bangaranga' },
+  { pos: 13, flag: '🇭🇷', country: 'Kroatien', artist: 'Lelek', song: 'Andromeda' },
+  { pos: 14, flag: '🇬🇧', country: 'Vereinigtes Königreich', artist: 'Look Mum No Computer', song: 'Eins, Zwei, Drei' },
+  { pos: 15, flag: '🇫🇷', country: 'Frankreich', artist: 'Monroe', song: 'Regarde!' },
+  { pos: 16, flag: '🇲🇩', country: 'Moldau', artist: 'Satoshi', song: 'Viva Moldova' },
+  { pos: 17, flag: '🇫🇮', country: 'Finnland', artist: 'Linda Lampenius & Pete Parkkonen', song: 'Liekinheitin' },
+  { pos: 18, flag: '🇵🇱', country: 'Polen', artist: 'Alicja', song: 'Pray' },
+  { pos: 19, flag: '🇱🇹', country: 'Litauen', artist: 'Lion Ceccah', song: 'Sólo quiero más' },
+  { pos: 20, flag: '🇸🇪', country: 'Schweden', artist: 'Felicia', song: 'My System' },
+  { pos: 21, flag: '🇨🇾', country: 'Zypern', artist: 'Antigoni', song: 'Jalla' },
+  { pos: 22, flag: '🇮🇹', country: 'Italien', artist: 'Sal Da Vinci', song: 'Per sempre sì' },
+  { pos: 23, flag: '🇳🇴', country: 'Norwegen', artist: 'Jonas Lovv', song: 'Ya Ya Ya' },
+  { pos: 24, flag: '🇷🇴', country: 'Rumänien', artist: 'Alexandra Căpitănescu', song: 'Choke Me' },
+  { pos: 25, flag: '🇦🇹', country: 'Österreich', artist: 'Cosmó', song: 'Tanzschein' }
+];
+
+const STORAGE_KEY = 'esc2026-vienna';
+let state = { players: [], votes: {}, currentPlayerIdx: 0, view: 'vote', expandedPos: null };
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      state = { ...state, ...parsed, expandedPos: null };
+    }
+  } catch (e) {}
+}
+function saveState() {
+  try {
+    const toSave = { ...state };
+    delete toSave.expandedPos;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch (e) {}
+}
+function exportData() {
+  return btoa(unescape(encodeURIComponent(JSON.stringify({ players: state.players, votes: state.votes }))));
+}
+function importDataFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const data = params.get('data');
+    if (data) {
+      const parsed = JSON.parse(decodeURIComponent(escape(atob(data))));
+      if (parsed.players && parsed.votes) {
+        if (confirm('Stimmen aus dem Link importieren? Deine aktuellen Stimmen werden überschrieben.')) {
+          state.players = parsed.players;
+          state.votes = parsed.votes;
+          saveState();
+          showToast('Stimmen importiert!');
+        }
+        history.replaceState(null, '', window.location.pathname);
+      }
+    }
+  } catch (e) {}
+}
+function shareMyData() {
+  const url = window.location.origin + window.location.pathname + '#data=' + exportData();
+  if (navigator.share) {
+    navigator.share({ title: 'ESC 2026 - Meine Stimmen', text: 'Schau dir meine ESC 2026 Bewertungen an!', url }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(url).then(() => showToast('Link kopiert!')).catch(() => prompt('Link kopieren:', url));
+  }
+}
+function mergeFromUrl() {
+  const input = document.getElementById('mergeUrl');
+  if (!input) return;
+  const url = input.value.trim();
+  if (!url) return;
+  try {
+    const params = new URLSearchParams((url.split('#')[1] || ''));
+    const data = params.get('data');
+    if (!data) { showToast('Kein gültiger Link'); return; }
+    const parsed = JSON.parse(decodeURIComponent(escape(atob(data))));
+    if (!parsed.players || !parsed.votes) { showToast('Kein gültiger Link'); return; }
+    let added = 0;
+    parsed.players.forEach(p => {
+      if (!state.players.includes(p)) { state.players.push(p); added++; }
+      if (parsed.votes[p]) state.votes[p] = parsed.votes[p];
+    });
+    saveState();
+    input.value = '';
+    showToast(`Stimmen gemerged! (${added} neu)`);
+    renderApp();
+  } catch (e) { showToast('Fehler beim Importieren'); }
+}
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2500);
+}
+function calcSongAvg(playerName, pos) {
+  const v = state.votes[playerName]?.[pos];
+  if (!v) return null;
+  if (typeof v.song !== 'number' || typeof v.stimme !== 'number' || typeof v.staging !== 'number') return null;
+  return (v.song + v.stimme + v.staging) / 3;
+}
+function calcGroupAvg(pos) {
+  const scores = state.players.map(p => calcSongAvg(p, pos)).filter(x => x !== null);
+  if (scores.length === 0) return null;
+  return scores.reduce((a, b) => a + b, 0) / scores.length;
+}
+function countComplete(playerName) {
+  let c = 0;
+  for (const s of SONGS) if (calcSongAvg(playerName, s.pos) !== null) c++;
+  return c;
+}
+function setBubble(pos, category, value) {
+  const player = state.players[state.currentPlayerIdx];
+  if (!player) return;
+  if (!state.votes[player]) state.votes[player] = {};
+  if (!state.votes[player][pos]) state.votes[player][pos] = {};
+  if (state.votes[player][pos][category] === value) delete state.votes[player][pos][category];
+  else state.votes[player][pos][category] = value;
+  saveState();
+  renderApp();
+}
+function toggleExpand(pos) {
+  state.expandedPos = state.expandedPos === pos ? null : pos;
+  renderApp();
+}
+function switchPlayer(idx) {
+  state.currentPlayerIdx = idx;
+  state.expandedPos = null;
+  saveState();
+  renderApp();
+}
+function switchView(v) {
+  state.view = v;
+  state.expandedPos = null;
+  saveState();
+  renderApp();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function submitSetup() {
+  const inputs = document.querySelectorAll('.name-input');
+  const names = Array.from(inputs).map(i => i.value.trim()).filter(n => n.length > 0);
+  if (names.length < 1) { showToast('Mindestens einen Namen eingeben'); return; }
+  state.players = names;
+  state.votes = {};
+  names.forEach(n => state.votes[n] = {});
+  state.currentPlayerIdx = 0;
+  saveState();
+  renderApp();
+}
+function resetAll() {
+  if (!confirm('Wirklich alles zurücksetzen? Alle Stimmen werden gelöscht.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = { players: [], votes: {}, currentPlayerIdx: 0, view: 'vote', expandedPos: null };
+  renderApp();
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function renderSetup() {
+  return `
+    <div class="setup">
+      <div class="setup-logo">🎤</div>
+      <h1>Eurovision 2026</h1>
+      <p>Wien · 16. Mai · #UnitedByMusic<br>Tippt eure Namen ein und los geht's!</p>
+      <input class="name-input" type="text" placeholder="Spieler 1" />
+      <input class="name-input" type="text" placeholder="Spieler 2" />
+      <input class="name-input" type="text" placeholder="Spieler 3" />
+      <input class="name-input" type="text" placeholder="Spieler 4 (optional)" />
+      <button class="start-btn" onclick="submitSetup()">Los geht's 🚀</button>
+    </div>
+  `;
+}
+function renderBubbles(pos, category, currentVal) {
+  let html = '<div class="bubbles">';
+  for (let i = 0; i <= 12; i++) {
+    const sel = currentVal === i ? 'selected' : '';
+    const twelve = i === 12 ? 'twelve' : '';
+    html += `<button class="bubble ${sel} ${twelve}" onclick="event.stopPropagation();setBubble(${pos}, '${category}', ${i})">${i}</button>`;
+  }
+  return html + '</div>';
+}
+function renderSongRow(s) {
+  const player = state.players[state.currentPlayerIdx];
+  const votes = state.votes[player]?.[s.pos] || {};
+  const avg = calcSongAvg(player, s.pos);
+  const isComplete = avg !== null;
+  const isExpanded = state.expandedPos === s.pos;
+  const avgDisplay = avg !== null ? avg.toFixed(1) : '–';
+  const quickScores = `
+    <div class="quick-scores">
+      <span class="quick-score ${votes.song !== undefined ? 'set' : ''}">${votes.song !== undefined ? votes.song : '·'}</span>
+      <span class="quick-score ${votes.stimme !== undefined ? 'set' : ''}">${votes.stimme !== undefined ? votes.stimme : '·'}</span>
+      <span class="quick-score ${votes.staging !== undefined ? 'set' : ''}">${votes.staging !== undefined ? votes.staging : '·'}</span>
+    </div>
+  `;
+  const renderCatLabel = (label, key) => {
+    const val = votes[key];
+    return `<div class="cat-label"><span>${label}</span><span class="cat-current ${val === undefined ? 'unset' : ''}">${val !== undefined ? val : '–'}</span></div>`;
+  };
+  const body = isExpanded ? `
+    <div class="song-body">
+      <div class="category-row">${renderCatLabel('Song', 'song')}${renderBubbles(s.pos, 'song', votes.song)}</div>
+      <div class="category-row">${renderCatLabel('Stimme', 'stimme')}${renderBubbles(s.pos, 'stimme', votes.stimme)}</div>
+      <div class="category-row">${renderCatLabel('Staging', 'staging')}${renderBubbles(s.pos, 'staging', votes.staging)}</div>
+    </div>
+  ` : '';
+  return `
+    <div class="song-row ${isComplete ? 'complete' : ''} ${isExpanded ? 'expanded' : ''}">
+      <div class="song-header" onclick="toggleExpand(${s.pos})">
+        <div class="pos-num">${String(s.pos).padStart(2, '0')}</div>
+        <div class="flag">${s.flag}</div>
+        <div class="song-info">
+          <p class="country-name">${escapeHtml(s.country)}</p>
+          <p class="artist-song">${escapeHtml(s.artist)} – ${escapeHtml(s.song)}</p>
+        </div>
+        ${quickScores}
+        <div class="avg-mini ${avg === null ? 'empty' : ''}">${avgDisplay}</div>
+        <div class="chevron">▾</div>
+      </div>
+      ${body}
+    </div>
+  `;
+}
+function renderVoteView() {
+  return '<div class="songs-container">' + SONGS.map(renderSongRow).join('') + '</div>';
+}
+function renderRanking(mode) {
+  const ranked = SONGS.map(s => {
+    let score, playerScores = null;
+    if (mode === 'mine') {
+      const player = state.players[state.currentPlayerIdx];
+      score = calcSongAvg(player, s.pos);
+    } else {
+      score = calcGroupAvg(s.pos);
+      playerScores = state.players.map(p => ({ name: p, score: calcSongAvg(p, s.pos) }));
+    }
+    return { ...s, score, playerScores };
+  });
+  ranked.sort((a, b) => {
+    if (a.score === null && b.score === null) return a.pos - b.pos;
+    if (a.score === null) return 1;
+    if (b.score === null) return -1;
+    return b.score - a.score;
+  });
+  if (!ranked.some(r => r.score !== null)) {
+    return `<div class="empty-state"><div class="emoji">🎵</div>Noch keine Bewertungen.<br>Wechsel zu "Voting" und gib Punkte ab.</div>`;
+  }
+  return '<div class="ranking-list">' + ranked.map((r, i) => {
+    const hasScore = r.score !== null;
+    const rank = hasScore ? i + 1 : '–';
+    let rankCls = '', itemCls = '';
+    if (rank === 1) { rankCls = 'gold'; itemCls = 'top1'; }
+    else if (rank === 2) { rankCls = 'silver'; itemCls = 'top2'; }
+    else if (rank === 3) { rankCls = 'bronze'; itemCls = 'top3'; }
+    const scoreDisplay = hasScore ? r.score.toFixed(2) : 'keine Daten';
+    let playerScoreHtml = '';
+    if (mode === 'group' && r.playerScores && state.players.length > 1) {
+      playerScoreHtml = '<div class="player-scores">' + r.playerScores.map(ps =>
+        `<span>${escapeHtml(ps.name)}: ${ps.score !== null ? ps.score.toFixed(1) : '–'}</span>`
+      ).join('') + '</div>';
+    }
+    return `
+      <div class="rank-item ${itemCls}">
+        <div class="rank-pos ${rankCls}">${rank}</div>
+        <div class="rank-flag">${r.flag}</div>
+        <div class="rank-country">
+          <div class="name">${escapeHtml(r.country)}</div>
+          <div class="song-title">${escapeHtml(r.artist)} – ${escapeHtml(r.song)}</div>
+          ${playerScoreHtml}
+        </div>
+        <div class="rank-score ${hasScore ? '' : 'no-data'}">${scoreDisplay}</div>
+      </div>
+    `;
+  }).join('') + '</div>';
+}
+function renderShareSection() {
+  return `
+    <div class="share-section">
+      <h3>📲 Stimmen teilen</h3>
+      <p>Sende deinen Link an die anderen — sie können ihn unten einfügen, um die Stimmen zu mergen.</p>
+      <button class="share-btn" onclick="shareMyData()">Mein Link teilen</button>
+      <input class="import-input" id="mergeUrl" type="text" placeholder="Link von Freund:in einfügen…" />
+      <button class="share-btn" style="margin-top:8px" onclick="mergeFromUrl()">Stimmen einfügen</button>
+    </div>
+  `;
+}
+function renderApp() {
+  const app = document.getElementById('app');
+  if (!app) return;
+  if (!state.players || state.players.length === 0) { app.innerHTML = renderSetup(); return; }
+  const currentPlayer = state.players[state.currentPlayerIdx];
+  const completed = countComplete(currentPlayer);
+  const pct = (completed / 25) * 100;
+  let viewContent;
+  if (state.view === 'vote') viewContent = renderVoteView();
+  else if (state.view === 'mine') viewContent = renderRanking('mine');
+  else viewContent = renderRanking('group');
+  app.innerHTML = `
+    <div class="header">
+      <div class="header-top">
+        <div class="logo"><span class="logo-heart">♥</span><span>Eurovision 2026</span></div>
+        <div class="date-pill">Wien · 16.05</div>
+      </div>
+      <div class="player-tabs">
+        ${state.players.map((p, i) => `
+          <button class="player-tab ${i === state.currentPlayerIdx ? 'active' : ''}" onclick="switchPlayer(${i})">
+            ${escapeHtml(p)}<span class="count">${countComplete(p)}/25</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="progress">
+        <span>${Math.round(pct)}%</span>
+        <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
+        <span>${completed}/25</span>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn ${state.view === 'vote' ? 'active' : ''}" onclick="switchView('vote')">Voting</button>
+        <button class="view-btn ${state.view === 'mine' ? 'active' : ''}" onclick="switchView('mine')">Mein Top 25</button>
+        <button class="view-btn ${state.view === 'group' ? 'active' : ''}" onclick="switchView('group')">Gruppe</button>
+      </div>
+    </div>
+    ${viewContent}
+    ${state.view !== 'vote' ? renderShareSection() : ''}
+    <div class="footer">
+      ESC 2026 Voting App<br>
+      <button class="reset-btn" onclick="resetAll()">Alles zurücksetzen</button>
+    </div>
+  `;
+}
+
+loadState();
+importDataFromUrl();
+renderApp();
+</script>
+
+</body>
+</html>
